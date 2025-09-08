@@ -10,3 +10,8 @@ trained_data
 *.engine
 *.pyc
 *.bag
+build/
+devel/
+logs
+.catkin_tools
+.packages_dpt_ros

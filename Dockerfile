@@ -47,7 +47,7 @@ RUN apt update && apt install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # install point cloud library if needed
-RUN apt-get update && apt-get install -y ros-noetic-jsk-pcl-ros ros-noetic-jsk-pcl-ros-utils &&\
+RUN apt-get update && apt-get install -y ros-noetic-jsk-pcl-ros ros-noetic-jsk-pcl-ros-utils ros-noetic-usb-cam &&\
     rm -rf /var/lib/apt/lists/*
 
 ########################################
@@ -58,24 +58,29 @@ RUN pip install gdown
 RUN /opt/tensorrt/install_opensource.sh
 ENV TENSORRT_DIR=/workspace/tensorrt
 ENV PATH=$TENSORRT_DIR/bin:$PATH
-RUN mkdir -p ~/catkin_ws/src
-RUN rosdep init && rosdep update && apt update
-RUN git clone --recurse-submodules https://github.com/ojh6404/depth_anything_ros.git ~/catkin_ws/src/depth_anything_ros
-RUN cd ~/catkin_ws/src/ &&\
-    source /opt/ros/noetic/setup.bash &&\
-    rosdep install --from-paths . -i -r -y &&\
-    cd ~/catkin_ws && catkin init && catkin build
-RUN pip install -r ~/catkin_ws/src/depth_anything_ros/requirements.txt --user &&\
-    rm -rf ~/.cache/pip
+# RUN mkdir -p ~/catkin_ws/src
+# RUN rosdep init && rosdep update && apt update
+# RUN git clone --recurse-submodules https://github.com/ojh6404/depth_anything_ros.git ~/catkin_ws/src/depth_anything_ros
+# RUN cd ~/catkin_ws/src/ &&\
+#     source /opt/ros/noetic/setup.bash &&\
+#     rosdep install --from-paths . -i -r -y &&\
+#     cd ~/catkin_ws && catkin init && catkin build
+# RUN pip install -r ~/catkin_ws/src/depth_anything_ros/requirements.txt --user &&\
+#     rm -rf ~/.cache/pip
 
 # to avoid conflcit when mounting
-RUN rm -rf ~/catkin_ws/src/depth_anything_ros/launch
-RUN rm -rf ~/catkin_ws/src/depth_anything_ros/node_scripts
+# RUN rm -rf ~/catkin_ws/src/depth_anything_ros/launch
+# RUN rm -rf ~/catkin_ws/src/depth_anything_ros/node_scripts
 
 # ########################################
 # ########### ENV VARIABLE STUFF #########
 # ########################################
-RUN touch ~/.bashrc
-RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+# RUN touch ~/.bashrc
+# RUN echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+
+ARG CACHE_BUST=3
+COPY ./setup.sh /tmp/setup.sh
+RUN chmod +x /tmp/setup.sh
+RUN echo "source /tmp/setup.sh" >> /root/.bashrc
 
 CMD ["bash"]
