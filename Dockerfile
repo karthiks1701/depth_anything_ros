@@ -83,3 +83,6 @@ RUN chmod +x /tmp/setup.sh
 RUN echo "source /tmp/setup.sh" >> /root/.bashrc
 
 CMD ["bash"]
+
+
+# we have to clone and build things like usb_cam, image_transport_plugins, image_pipeline, vision_opencv
