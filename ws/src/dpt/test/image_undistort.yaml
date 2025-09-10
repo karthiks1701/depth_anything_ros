@@ -3,8 +3,9 @@ usb_cam:
     [0.0,       310.83225, 238.80018],
     [0.0,       0.0,       1.0]]
   
-  distortion_coeffs: [0.052961, -1.747018, 3.352134, -0.019135]
+  D: [0.052961, -1.747018, 3.352134, -0.019135]
   camera_model: pinhole
   distortion_model: equidistant
 
-  resolution: [640, 480]
+  width: 640
+  height: 480

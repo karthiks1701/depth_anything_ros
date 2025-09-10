@@ -12,5 +12,5 @@ fi
 
 image_tag=depth_anything_ros
 
-docker system prune
+# docker system prune
 docker build --build-arg CACHE_BUST=$(date +%s) --build-arg TARGETARCH=$BUILDARCH . -t ${image_tag}

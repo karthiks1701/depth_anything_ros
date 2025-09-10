@@ -18,6 +18,7 @@
     <param name="camera_frame_id" value="usb_cam_link" />
     <param name="camera_name" value="usb_cam" />
     <param name="io_method" value="mmap"/>
+    <param name="framerate" value="30"/>
   </node>
 
   <!-- <node pkg="dpt" type="fisheye_pointcloud.py" name="fisheye_pointcloud" output="screen">
@@ -32,10 +33,10 @@
     <param name="camera_info_topic" value="/usb_cam/camera_info"/>
     <param name="output_image_topic" value="/usb_cam/image_rect"/>
     <param name="output_camera_info_topic" value="/usb_cam/camera_info_rect"/>
-    <param name="width" value="640"/>
-    <param name="height" value="480"/>
+    <param name="width" value="518"/>
+    <param name="height" value="518"/>
     <param name="balance" value="0.0"/>
-    <param name="fov_scale" value="0.6"/>
+    <param name="fov_scale" value="0.7"/>
   </node> 
   
   <!-- <group ns="usb_cam">
@@ -74,5 +75,14 @@
     <arg name="camera_info" value="$(arg camera_info)"/>
     <arg name="depth_scale" value="$(arg depth_scale)"/>
   </include>
+
+  <!-- <include file="$(find dpt)/launch/python.launch" >
+    <arg name="model" value="$(arg model)"/>
+    <arg name="input_image" value="$(arg input_image)"/>
+    <arg name="input_depth" value="$(arg input_depth)"/>
+    <arg name="output_cloud" value="$(arg output_cloud)" />
+    <arg name="camera_info" value="$(arg camera_info)"/>
+    <arg name="depth_scale" value="$(arg depth_scale)"/>
+  </include>  -->
 
 </launch>

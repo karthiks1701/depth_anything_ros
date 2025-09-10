@@ -2,9 +2,13 @@ import argparse
 import os
 import sys
 import torch
-
-DEPTH_ANYTHING_V2_PATH = os.path.join(os.path.dirname(__file__), "..", "Depth-Anything-V2", "metric_depth")
+import tensorrt as trt
+# DEPTH_ANYTHING_V2_PATH = os.path.join(os.path.dirname(__file__), "../../../../../", "Depth-Anything-V2", "metric_depth")
+DEPTH_ANYTHING_V2_PATH = "/dpt_ros/Depth-Anything-V2/metric_depth"
 sys.path.append(DEPTH_ANYTHING_V2_PATH)
+# for p in sys.path:
+#     print(p)
+# print("Added path exists:", os.path.exists(DEPTH_ANYTHING_V2_PATH))
 from depth_anything_v2.dpt import DepthAnythingV2
 
 MODEL_CONFIG = {
@@ -28,6 +32,7 @@ def main(args):
 
     # replace the extension of the checkpoint file with .onnx
     onnx_path = args.checkpoint.replace(".pth", ".onnx")
+    engine_path = args.checkpoint.replace(".pth", ".engine")
 
     # Export the PyTorch model to ONNX format
     torch.onnx.export(
@@ -42,13 +47,35 @@ def main(args):
 
     print(f"Model exported to {onnx_path}")
 
+    logger = trt.Logger(trt.Logger.VERBOSE)
+    builder = trt.Builder(logger)
+    network = builder.create_network(1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
+    parser = trt.OnnxParser(network, logger)
+    
+    with open(onnx_path, "rb") as model:
+        if not parser.parse(model.read()):
+            for error in range(parser.num_errors):
+                print(parser.get_error(error))
+            raise ValueError('Failed to parse the ONNX model.')
+    
+    # Set up the builder config
+    config = builder.create_builder_config()
+    config.set_flag(trt.BuilderFlag.FP16) # FP16
+    config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, 2 << 30) # 2 GB
+    
+    serialized_engine = builder.build_serialized_network(network, config)
+    
+    with open(engine_path, "wb") as f:
+        f.write(serialized_engine)
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Depth Anything V2")
     parser.add_argument("--input-size", type=int, default=518)
-    parser.add_argument("-m", "--model", type=str, default="vitl", choices=["vits", "vitb", "vitl", "vitg"])
+    parser.add_argument("-m", "--model", type=str, default="vits", choices=["vits", "vitb", "vitl", "vitg"])
     parser.add_argument(
-        "-ckpt", "--checkpoint", type=str, default="trained_data/depth_anything_v2_metric_hypersim_vitl.pth"
+        "-ckpt", "--checkpoint", type=str, default="/dpt_ros/ws/src/dpt/depth_anything_v2_metric_hypersim_vits.pth"
     )
     parser.add_argument("--max-depth", type=float, default=20)
     args = parser.parse_args()

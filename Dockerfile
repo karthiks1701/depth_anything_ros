@@ -1,5 +1,8 @@
-FROM nvcr.io/nvidia/tensorrt:23.03-py3
+FROM dustynv/ros:noetic-pytorch-l4t-r35.3.1
 ENV DEBIAN_FRONTEND=noninteractive
+
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' \
+    && curl -sSL 'https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc' | apt-key add -
 
 # install essential packages
 RUN apt update && apt install -q -y --no-install-recommends \
@@ -10,21 +13,21 @@ RUN apt update && apt install -q -y --no-install-recommends \
     build-essential \
     git \
     lsb-release \
+    libogg-dev \
+    libturbojpeg0-dev \
+    libtheora-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libswscale-dev \
+    libv4l-dev \
     && rm -rf /var/lib/apt/lists/*
-
-# setup sources.list
-RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-
-# setup keys
-RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
-
-ENV ROS_DISTRO=noetic
 
 # install ros core
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ros-noetic-ros-core=1.5.0-1* \
-    ros-noetic-ros-base=1.5.0-1* \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     ros-noetic-ros-core=1.5.0-1* \
+#     ros-noetic-ros-base=1.5.0-1* \
+#     && rm -rf /var/lib/apt/lists/*
 
 # install bootstrap tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -40,24 +43,20 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # install ros packages
 RUN apt update && apt install -y --no-install-recommends \
-    ros-noetic-image-transport-plugins \
-    ros-noetic-jsk-tools \
-    ros-noetic-jsk-common \
-    ros-noetic-jsk-topic-tools \
+    ros-noetic-eigen-conversions \
+    ros-noetic-tf2-ros \
+    ros-noetic-tf2-geometry-msgs \
+    ros-noetic-camera-info-manager \
     && rm -rf /var/lib/apt/lists/*
-
-# install point cloud library if needed
-RUN apt-get update && apt-get install -y ros-noetic-jsk-pcl-ros ros-noetic-jsk-pcl-ros-utils ros-noetic-usb-cam &&\
-    rm -rf /var/lib/apt/lists/*
 
 ########################################
 ########### WORKSPACE BUILD ############
 ########################################
 # Installing catkin package
-RUN pip install gdown
-RUN /opt/tensorrt/install_opensource.sh
-ENV TENSORRT_DIR=/workspace/tensorrt
-ENV PATH=$TENSORRT_DIR/bin:$PATH
+RUN pip install --index-url https://pypi.org/simple gdown
+# RUN /opt/tensorrt/install_opensource.sh
+# ENV TENSORRT_DIR=/workspace/tensorrt
+# ENV PATH=$TENSORRT_DIR/bin:$PATH
 # RUN mkdir -p ~/catkin_ws/src
 # RUN rosdep init && rosdep update && apt update
 # RUN git clone --recurse-submodules https://github.com/ojh6404/depth_anything_ros.git ~/catkin_ws/src/depth_anything_ros

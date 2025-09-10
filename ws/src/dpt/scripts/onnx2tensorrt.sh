@@ -12,11 +12,13 @@ if [ ! -d "$onnx_dir" ]; then
     exit 1
 fi
 
+TRT_BIN=/usr/src/tensorrt/bin/trtexec
+
 for onnx_file in "$onnx_dir"/*.onnx
 do
     if [ -f "$onnx_file" ]; then
         base_name=$(basename "${onnx_file%.onnx}")
-        trtexec --onnx="$onnx_file" --saveEngine="$onnx_dir/${base_name}.engine"
+        $TRT_BIN --onnx="$onnx_file" --saveEngine="$onnx_dir/${base_name}.engine" --explicitBatch --workspace=2048 
         echo "Exported $onnx_file to $onnx_dir/${base_name}.engine"
     fi
 done

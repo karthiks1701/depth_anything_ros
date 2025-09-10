@@ -1,7 +1,7 @@
 #include "depth_anything.h"
 #include <NvOnnxParser.h>
 
-#define isFP16 true
+#define isFP16 false
 
 using namespace nvinfer1;
 
@@ -59,7 +59,7 @@ DepthAnything::DepthAnything(std::string model_path,
  * @brief RTMSeg`s destructor
  */
 DepthAnything::~DepthAnything() {
-  cudaFree(stream);
+  cudaStreamDestroy(stream);
   cudaFree(buffer[0]);
   cudaFree(buffer[1]);
 
