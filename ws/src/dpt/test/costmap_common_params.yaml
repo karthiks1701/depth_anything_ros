@@ -1,0 +1,34 @@
+costmap:
+  global_frame: base_link
+  robot_base_frame: base_link
+  update_frequency: 5.0
+  publish_frequency: 2.0
+  transform_tolerance: 0.5
+  rolling_window: true
+  inf_is_valid: true
+  footprint_clearing_enabled: true #idk why this helped
+
+  #set map
+  width: 8.0
+  height: 8.0
+  resolution: 0.05
+
+  plugins: 
+    - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+    - {name: inflation_layer, type: "costmap_2d::InflationLayer", output: "screen"}
+
+  obstacle_range: 5
+  raytrace_range: 5.5
+  footprint: [[ 0.3, 0.3], [-0.3, 0.3], [-0.3, -0.3], [ 0.3, -0.3]]
+
+  lethal_cost_threshold: 100
+
+  obstacle_layer:
+    observation_sources: depth_sensor
+    #min_obstacle_height: 2 #clear out readings lower than 
+    #max_obstacle_height: 5 #clear our reading higher than
+    depth_sensor: {sensor_frame: usb_cam_link, data_type: PointCloud2, topic: /depth_anything/depth_registered/points, marking: true, clearing: true}
+    #Inflation layer param
+
+  inflation_layer:
+    inflation_radius: 0.0
